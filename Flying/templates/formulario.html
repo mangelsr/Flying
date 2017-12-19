@@ -10,10 +10,12 @@
   <body class="container">
     <div class="container my-5 ">
       <h2 class="text-center">Flying</h2>
-      <form method="post" class="">
+      <form method="post" action="">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-outline-success" type="submit">Buscar</button>
+        {{ form }}
+        <button class="btn btn-outline-success">
+          Buscar
+        </button>
       </form>
     </div>
     <h2>Resultados de la busqueda</h2>
@@ -28,9 +30,9 @@
       <tbody>
         {% for resultado in lista_resultados %}
           <tr>
-            <td>{{ resultado.aerolinea }}</td>
+            <td>{{ resultado.nombre }}</td>
             <td>{{ resultado.iata }}</td>
-            <td>@{{ resultado.pais }}</td>
+            <td>{{ resultado.pais }}</td>
           </tr>
         {% empty %}
           No hay vuelos disponibles.
