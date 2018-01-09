@@ -1,0 +1,21 @@
+<h3 class="my-4">Resultados de la busqueda</h3>
+<table class="table table-responsive">
+    <thead>
+    <tr>
+        <th scope="col">Aerolinea</th>
+        <th scope="col">Aeropuerto Origen</th>
+        <th scope="col">Aeropuerto Destino	</th>
+        <th scope="col">Escalas</th>
+    </tr>
+    </thead>
+    <tbody id="tabla">
+        {% for ruta in rutas %}
+            <tr>
+                <td>{{ ruta.aerolinea }}</td>
+                <td>{{ ruta.aero_origen }}</td>
+                <td>{{ ruta.aero_destino }}</td>
+                <td>{{ ruta.paradas }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
