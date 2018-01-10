@@ -12,7 +12,7 @@ from .forms import Form
 from .models import *
 
 
-client = MongoClient('localhost', 27017)
+client = MongoClient('locamongodb://miguel:12345@ds245277.mlab.com:45277/flyinglhost')
 db = client.flying
 
 
