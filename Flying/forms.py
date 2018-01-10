@@ -13,8 +13,5 @@ class Form(forms.Form):
 		tup = pais, pais
 		PAISES.append(tup)
 		
-	# PAISES = ver_paises()
-	CHOICES = (('directo','Vuelo directo'),('escala','Vuelo con escalas'))
 	origen = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), choices=PAISES)
 	destino = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-control'}), choices=PAISES)
-	# radio = forms.ChoiceField(widget=forms.RadioSelect(), choices=CHOICES, label='')
