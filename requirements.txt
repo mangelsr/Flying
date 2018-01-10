@@ -1,3 +1,4 @@
 Django==2.0.1
 djangoajax==2.4
+pymongo==3.6.0
 pytz==2017.3
