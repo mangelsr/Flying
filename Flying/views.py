@@ -1,12 +1,16 @@
 import time
+import json
 
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 
 from django_ajax.decorators import ajax
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from bson.json_util import dumps
 
 from .forms import Form
 from .models import *
@@ -15,6 +19,68 @@ from .models import *
 client = MongoClient('mongodb://miguel:12345@ds245277.mlab.com:45277/flying')
 db = client.flying
 
+ENTIDADES = ['countries', 'airlines', 'airports', 'routes']
+
+@require_http_methods(['GET'])
+def lista(request, table):
+	if table not in ENTIDADES:
+		return HttpResponse(dumps({'detalle': 'Modelo no existe'}), content_type='application/json', status=404)
+	
+	lista = db[table].find()
+	return HttpResponse(dumps(lista), content_type='application/json')
+
+@csrf_exempt
+@require_http_methods(['GET', 'POST', 'PUT', 'DELETE'])
+def modelo(request, table, id):
+	if table not in ENTIDADES:
+		return HttpResponse(dumps({'detalle': 'Modelo no existe'}), content_type='application/json', status=404)
+	
+	if table == 'countries':
+		id_field = 'name'
+	elif table == 'airlines':
+		id_field = 'airlineID'
+		id = int(id)
+	elif table == 'airports':
+		id_field = 'airportID'
+		id = int(id)
+	elif table == 'routes':
+		id_field = 'airlineID'
+
+	busqueda = db[table].find({id_field: id})
+
+	if request.method == 'GET':
+		if busqueda.count() == 0: 
+			return HttpResponse(dumps({'detalle': 'No encontrado'}), content_type='application/json', status=404)
+		else:
+			return HttpResponse(dumps(busqueda), content_type='application/json')
+	
+	elif request.method == 'POST':
+		if busqueda.count() > 0: 
+			return HttpResponse(dumps({'detalle': 'Metodo "POST" no permitido'}), content_type='application/json', status=405)
+		else:
+			body = json.loads(request.body.decode('utf-8'))
+			db[table].insert_one(body)
+			return HttpResponse(dumps(body), content_type='application/json')
+			
+	elif request.method == 'PUT':
+		if busqueda.count() == 0: 
+			return HttpResponse(dumps({'detalle': 'No encontrado'}), content_type='application/json', status=404)
+		elif busqueda.count() > 1: 
+			return HttpResponse(dumps({'detalle': 'Metodo "PUT" no permitido'}), content_type='application/json', status=405)
+		else:
+			body = json.loads(request.body.decode('utf-8'))
+			db[table].replace_one({id_field: id}, body)
+			return HttpResponse(dumps(body), content_type='application/json')
+	
+	elif request.method == 'DELETE':
+		if busqueda.count() == 0: 
+			return HttpResponse(dumps({'detalle': 'No encontrado'}), content_type='application/json', status=404)
+		elif busqueda.count() > 1: 
+			return HttpResponse(dumps({'detalle': 'Metodo "DELETE" no permitido'}), content_type='application/json', status=405)
+		else:
+			db[table].delete_one({id_field: id})
+			return HttpResponse(status=204)
+		
 
 @require_http_methods(['GET'])
 def index(request):
